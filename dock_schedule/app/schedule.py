@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, request, Response
 from dotenv import load_dotenv, find_dotenv
 from pathlib import Path
 import requests
@@ -13,6 +13,7 @@ load_dotenv(find_dotenv())
 
 tzdb_api_key = os.environ['TZDB_API_KEY']
 tzdb_url = os.environ['TZDB_URL']
+local_data = os.environ['TEAM_FILE']
 
 
 app = Flask(__name__)
@@ -21,16 +22,24 @@ app = Flask(__name__)
 # team_file = json.load(open(Path("dock_mongo/data/support-eng.json")))
 
 class CreateTeamMember:
-    def __init__(self, team_member, city):
-        
-        
+    def __init__(self, team_member, city, country, email):
+        api_url = tzdb_url + f"/v2.1/get-time-zone?key={tzdb_api_key}&format=json&by=zone&zone={country}/{city}"
+        tz = requests.get(api_url).json()
 
-        self.name = str(team_member)
-        self.utc_offset = ''
-        self.abbrevation = ''
-        self.timezone = city
-        self.email = ''
+        self.name = str(team_member.capitalize())
+        self.utc_offset = get_utc_offset(tz['gmtOffset'])
+        self.abbrevation = tz['abbreviation']
+        self.timezone = tz['zoneName']
+        self.email = email
 
+    def returnNewMember(self):
+        return CreateTeamMember()
+
+def get_utc_offset(gmtOffset):
+    hour = 60
+    minute = 60
+    utc_offset = gmtOffset / hour / minute
+    return utc_offset
         
 def get_tz(city, country):
     city = city.capitalize()
@@ -38,16 +47,49 @@ def get_tz(city, country):
     api_url = tzdb_url + f"/v2.1/get-time-zone?key={tzdb_api_key}&format=json&by=zone&zone={country}/{city}"
     print(api_url)
 
-    timezone = requests.get(api_url)
-    return timezone.text
+    timezone = requests.get(api_url).json()
+    return timezone['']
 
 def load_local_db():
-    data = json.load(open("dock_mongo/data/support-eng.json", "r"))
+    data = json.load(open(local_data, "r"))
     return data
 
-@app.route("/get-local-time/<string:team_member>")
+@app.route('/create-teammember/<string:team_member>', methods=['GET','PUT'])
+def create_teammember(team_member):
+    city = request.args.get('city').replace(" ","_")
+    country = request.args.get('country')
+    email = request.args.get('email')
+    new_teammember = CreateTeamMember(team_member, city, country, email)
+    
+    if request.method == "PUT":
+        new_teammate = {  "name": new_teammember.name,
+                            "utc_offset": new_teammember.utc_offset,
+                            "abbreviation": new_teammember.abbrevation,
+                            "timezone": new_teammember.timezone.replace("_"," "),
+                            "email": new_teammember.email
+                        }
+        try:
+            with open(local_data, mode="r+") as file:
+                file.seek(0,2)
+                position = file.tell() -1
+                file.seek(position)
+                file.write( ",{}]".format(json.dump(new_teammate), indent=4))
+            return(jsonify({"success": f"{team_member} added."}))
+        except:
+            return(print("Error."))
+    elif request.method == "GET":
+        return_payload = {  "name": new_teammember.name,
+                            "utc_offset": new_teammember.utc_offset,
+                            "abbreviation": new_teammember.abbrevation,
+                            "timezone": new_teammember.timezone.replace("_"," "),
+                            "email": new_teammember.email
+                        }
+        return(jsonify(return_payload))
+
+@app.route("/get-local-time/<string:team_member>", methods=('get', 'post'))
 def get_local_time(team_member):
     data = load_local_db()
+
     team_member = team_member.capitalize()
     
     teammate_info = [teammate for teammate in data if team_member in teammate['name']]
