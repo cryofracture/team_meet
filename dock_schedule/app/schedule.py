@@ -131,7 +131,7 @@ def get_teammate_info(team_member):
         
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
     # city = "Shanghai"
     # country = "Asia"
     # tz = get_tz(city, country)
