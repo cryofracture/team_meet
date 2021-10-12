@@ -27,7 +27,7 @@ class CreateTeamMember:
         tz = requests.get(api_url).json()
 
         self.name = str(team_member.capitalize())
-        self.utc_offset = get_utc_offset(tz['gmtOffset'])
+        self.utc_offset = "UTC" + str(get_utc_offset(tz['gmtOffset']))
         self.abbrevation = tz['abbreviation']
         self.timezone = tz['zoneName']
         self.email = email
@@ -38,7 +38,7 @@ class CreateTeamMember:
 def get_utc_offset(gmtOffset):
     hour = 60
     minute = 60
-    utc_offset = gmtOffset / hour / minute
+    utc_offset = int(gmtOffset / hour / minute)
     return utc_offset
         
 def get_tz(city, country):
@@ -68,15 +68,12 @@ def create_teammember(team_member):
                             "timezone": new_teammember.timezone.replace("_"," "),
                             "email": new_teammember.email
                         }
-        try:
-            with open(local_data, mode="r+") as file:
-                file.seek(0,2)
-                position = file.tell() -1
-                file.seek(position)
-                file.write( ",{}]".format(json.dump(new_teammate), indent=4))
-            return(jsonify({"success": f"{team_member} added."}))
-        except:
-            return(print("Error."))
+        with open(local_data, mode="r+") as file:
+            file.seek(0,2)
+            position = file.tell() -1
+            file.seek(position)
+            file.write( ",\n{}]".format(json.dumps(new_teammate), indent=4, separators=(',', ': ')))
+        return(jsonify({"success": f"{new_teammate}"}))
     elif request.method == "GET":
         return_payload = {  "name": new_teammember.name,
                             "utc_offset": new_teammember.utc_offset,
@@ -84,35 +81,51 @@ def create_teammember(team_member):
                             "timezone": new_teammember.timezone.replace("_"," "),
                             "email": new_teammember.email
                         }
-        return(jsonify(return_payload))
-
-@app.route("/get-local-time/<string:team_member>", methods=('get', 'post'))
-def get_local_time(team_member):
-    data = load_local_db()
-
-    team_member = team_member.capitalize()
-    
-    teammate_info = [teammate for teammate in data if team_member in teammate['name']]
-    
-    if teammate_info:
-        print(teammate_info)
-        print(teammate_info['timezone'])
-        api_url = tzdb_url + f"/v2.1/get-time-zone?key={tzdb_api_key}&format=json&by=zone&zone={teammate_info['timezeone']}"
-        tzdb_response = requests.get(api_url)
-        local_time = tzdb_response['data']['formatted']
-        return(jsonify({f"Local time for {team_member}: ": local_time}))
-        
+                        
+        return(jsonify({"success": return_payload}))
     else:
         return(abort(404))
 
+@app.route("/get_local_time/<string:team_member>", methods=['GET'])
+def get_local_time(team_member):
+    data = load_local_db()
+    # print(data)
+    team_member = team_member.capitalize()
 
-@app.route("/meet/<string:team_member>")
-def get_meeting_time(team_member):
+    for dict in data:
+        # print("")
+        # print(dict)
+        if team_member in dict['name']:
+            timezone = str(dict['timezone']).replace(" ","_")
+            api_url = tzdb_url + f"/v2.1/get-time-zone?key={tzdb_api_key}&format=json&by=zone&zone={timezone}"
+            tzdb_response = requests.get(api_url).json()
+            local_time = tzdb_response['formatted']
+            return(jsonify({f"Local time for {team_member}: ": local_time}))
+        elif team_member not in dict['name']:
+            continue
+        else:
+            return(abort(404))
+    
+    
+    # if teammate_info:
+    #     print(teammate_info)
+    #     print(teammate_info['timezone'])
+    #     api_url = tzdb_url + f"/v2.1/get-time-zone?key={tzdb_api_key}&format=json&by=zone&zone={teammate_info['timezeone']}"
+    #     tzdb_response = requests.get(api_url)
+    #     local_time = tzdb_response['data']['formatted']
+    #     return(jsonify({f"Local time for {team_member}: ": local_time}))
+        
+    # else:
+    #     return(abort(404))
+
+
+@app.route("/team/<string:team_member>")
+def get_teammate_info(team_member):
     data = load_local_db()
     team_member = team_member.capitalize()
-    teammate_info = [teammate for teammate in data if teammate['name'] == team_member]
+    teammate_info = [dict for dict in data if team_member in dict['name']]
     if teammate_info:
-        return(jsonify({f"info for {team_member}: ": teammate_info}))
+        return(jsonify({f"info for {team_member}: ": teammate_info[0]}))
     else:
         return(abort(404))
         
