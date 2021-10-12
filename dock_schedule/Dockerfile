@@ -7,4 +7,5 @@ RUN pip install -r /src/requirements.txt
 COPY app/.env /src
 COPY app/schedule.py /src
 COPY ../../dock_mongo/data/support-eng.json /src/data/support-eng.json
-CMD python /src/schedule.py
+WORKDIR /src
+CMD ["venv/bin/python", "schedule.py"]
