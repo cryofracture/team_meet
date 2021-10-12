@@ -6,6 +6,6 @@ RUN python -m venv venv
 RUN pip install -r /src/requirements.txt
 COPY app/.env /src
 COPY app/schedule.py /src
-COPY ../dock_mongo/data/support-eng.json /src/data/support-eng.json
+COPY mock_data/support-eng.json /src/data/support-eng.json
 WORKDIR /src
 CMD ["venv/bin/python", "schedule.py"]
