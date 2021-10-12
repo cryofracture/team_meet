@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, jsonify, abort, request, Response
+from flask import Flask, jsonify, abort, request
 from dotenv import load_dotenv, find_dotenv
 from pathlib import Path
 import requests
