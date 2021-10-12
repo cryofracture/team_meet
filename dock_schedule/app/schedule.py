@@ -40,21 +40,12 @@ def get_utc_offset(gmtOffset):
     minute = 60
     utc_offset = int(gmtOffset / hour / minute)
     return utc_offset
-        
-def get_tz(city, country):
-    city = city.capitalize()
-    country = country.capitalize()
-    api_url = tzdb_url + f"/v2.1/get-time-zone?key={tzdb_api_key}&format=json&by=zone&zone={country}/{city}"
-    print(api_url)
-
-    timezone = requests.get(api_url).json()
-    return timezone['']
 
 def load_local_db():
     data = json.load(open(local_data, "r"))
     return data
 
-@app.route('/create-teammember/<string:team_member>', methods=['GET','PUT'])
+@app.route('/create-teammember/<string:team_member>', methods=['GET','PUT','DELETE'])
 def create_teammember(team_member):
     city = request.args.get('city').replace(" ","_")
     country = request.args.get('country')
@@ -83,6 +74,12 @@ def create_teammember(team_member):
                         }
                         
         return(jsonify({"success": return_payload}))
+    elif request.method == "DELETE":
+        data = load_local_db()
+        for dict in data:
+            if team_member in dict['name']:
+                data.remove(dict)
+        # l.remove(next(d for d in l if d['name'] == value))
     else:
         return(abort(404))
 
@@ -128,7 +125,7 @@ def get_teammate_info(team_member):
         return(jsonify({f"info for {team_member}: ": teammate_info[0]}))
     else:
         return(abort(404))
-        
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)

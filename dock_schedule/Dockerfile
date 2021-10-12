@@ -1,8 +1,6 @@
 FROM python:3.9.7
 COPY requirements.txt /src/requirements.txt
 RUN /usr/local/bin/python -m pip install --upgrade pip
-#RUN python -m venv venv
-#RUN source venv/bin/activate
 RUN pip install flask
 RUN pip install python-dotenv
 RUN pip install -r /src/requirements.txt
@@ -10,5 +8,6 @@ COPY app/.env /src
 COPY app/schedule.py /src
 COPY mock_data/support-eng.json /src/data/support-eng.json
 WORKDIR /src
-EXPOSE 8080
-CMD ["python", "schedule.py"]
+
+ENV FLASK_APP=/src/schedule.py:app
+CMD ["flask", "run", "--host", "0.0.0.0", "--port", "8080"]
