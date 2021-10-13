@@ -158,7 +158,7 @@ def create_teammember(team_member):
         return(abort(400))
 
 # Using the timezone information from the database, reach back to the TZDB API to get current local time for provided teammember's location.
-@app.route("/get_local_time/<string:team_member>", methods=['GET'])
+@app.route("/api/get_local_time/<string:team_member>", methods=['GET'])
 def get_local_time(team_member):
     data = load_local_db()
     team_member = team_member.capitalize()
@@ -177,7 +177,7 @@ def get_local_time(team_member):
 
 # function to print out all information on the requested teammember, including:
 # Name, email, UTC Offset, Timezone, Timezone Abbreviation.
-@app.route("/team/<string:team_member>")
+@app.route("/api/team/<string:team_member>")
 def get_teammate_info(team_member):
     data = load_local_db()
     team_member = team_member.capitalize()
