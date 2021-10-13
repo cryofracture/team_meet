@@ -47,10 +47,14 @@ def load_local_db():
 
 @app.route('/create-teammember/<string:team_member>', methods=['GET','PUT','DELETE'])
 def create_teammember(team_member):
-    city = request.args.get('city').replace(" ","_")
+    city = request.args.get('city')
     country = request.args.get('country')
     email = request.args.get('email')
-    new_teammember = CreateTeamMember(team_member, city, country, email)
+    args = [city,country,email]
+    for arg in args:
+        if arg is None:
+            return(abort(400))
+    new_teammember = CreateTeamMember(team_member, city.replace(" ","_"), country, email)
     
     if request.method == "PUT":
         new_teammate = {  "name": new_teammember.name,
