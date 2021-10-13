@@ -56,3 +56,12 @@ resource "docker_container" "dock_schedule" {
 #   image = docker_image.mongodb.latest
 #   name  = "mongodb container"
 # }
+
+# Create a network for the app
+resource "docker_network" "dock_schedule_network" {
+  name = "dock_schedule"
+  driver = "bridge"
+  check_duplicate = true
+  ingress = false
+  attachable = true
+}
