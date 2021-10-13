@@ -13,9 +13,9 @@ provider "docker" {
 
 # Pulls the image
 resource "docker_image" "python" {
-  name = "python:3-9"
+  name = "cryofracture/dock_schedule"
   build {
-    path = "."
+    path = "dock_schedule"
     
     tag  = ["latest:dev"]
       
@@ -23,36 +23,36 @@ resource "docker_image" "python" {
     #   foo : "zoo"
     # }
     label = {
-      author : "Cryofracture"
+      author : "cryofracture"
     }
   }
 }
 
 # Pulls the image
-resource "docker_image" "mongodb" {
-  name = "mongodb:latest"
-  build {
-    path = "."
+# resource "docker_image" "mongodb" {
+#   name = "mongodb:latest"
+#   build {
+#     path = "."
     
-    tag  = ["latest:dev"]
+#     tag  = ["latest:dev"]
       
-    # build_arg = {
-    #   foo : "zoo"
-    # }
-    label = {
-      author : "Cryofracture"
-    }
-  }
-}
+#     # build_arg = {
+#     #   foo : "zoo"
+#     # }
+#     label = {
+#       author : "Cryofracture"
+#     }
+#   }
+# }
 
 # Create a container
 resource "docker_container" "dock_schedule" {
   image = docker_image.python.latest
-  name  = "pyscheduler container"
+  name  = "dock_schedule"
 }
 
-# Create a container
-resource "docker_container" "dock_mongo" {
-  image = docker_image.mongodb.latest
-  name  = "mongodb container"
-}
+# # Create a container
+# resource "docker_container" "dock_mongo" {
+#   image = docker_image.mongodb.latest
+#   name  = "mongodb container"
+# }

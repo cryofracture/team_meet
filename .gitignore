@@ -4,3 +4,8 @@ venv
 *.json
 *.tfvars
 .idea
+.pytest_cache
+.terraform.lock.hcl
+*.tfplan
+.terraform
+*.tfstate*
