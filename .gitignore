@@ -9,3 +9,4 @@ venv
 *.tfplan
 .terraform
 *.tfstate*
+dock_mongo/dbdata
