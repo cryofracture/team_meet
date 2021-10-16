@@ -98,7 +98,7 @@ def load_local_db():
 ##################################################################################################################
 
 # Create a new team member. For proper API functionality, all fields are currently required.
-@app.route('api/create-teammember/<string:team_member>', methods=['GET','PUT','DELETE'])
+@app.route('/api/create-teammember/<string:team_member>', methods=['GET','PUT','DELETE'])
 def create_teammember(team_member):
     # Pull arguments from GET request. URL example would be:
     # curl -X GET|PUT /api/create-teammember/Newguy?city=New York&country=America&email=Newguy@acme.co
