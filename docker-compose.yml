@@ -14,7 +14,7 @@ services:
       MONGO_PASS: ${MONGO_PASS}
     volumes:
       # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-      - ./dock-mongo/dbdata:/data/db:rw
+      - ./dock_mongo/dbdata:/data/db:rw
     env_file:
       - .env
     ports:
@@ -45,7 +45,7 @@ services:
     depends_on:
       - dock-mongo
     volumes:
-      - ./dock-mongo/dbdata:/data/db
+      - ./dock_mongo/dbdata:/data/db
     networks: 
       - dock_schedule-backend
 
