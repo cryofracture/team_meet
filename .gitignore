@@ -10,4 +10,4 @@ venv
 .terraform
 *.tfstate*
 dock_mongo/dbdata/*
-dock-mongo/*
+./dock-mongo/
