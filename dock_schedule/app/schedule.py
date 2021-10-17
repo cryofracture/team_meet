@@ -24,7 +24,8 @@ import re
 load_dotenv(find_dotenv())
 tzdb_api_key = os.environ['TZDB_API_KEY']
 tzdb_url = os.environ['TZDB_URL']
-local_data = os.environ['TEAM_FILE']
+# local_data = os.environ['TEAM_FILE']
+local_data = "/src/mock_data/support-eng.json"
 
 
 app = Flask(__name__)

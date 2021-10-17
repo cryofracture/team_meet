@@ -18,7 +18,7 @@ RUN pip install -r /src/requirements.txt
 COPY app/.env /src
 
 # TODO: Remove this once mongo server is implemented correctly.
-COPY mock_data/support-eng.json /src/data/support-eng.json
+COPY mock_data/support-eng.json /src/mock_data/support-eng.json
 
 # set WORKDIR
 WORKDIR /src
