@@ -29,5 +29,7 @@ COPY app/schedule.py /src
 # enable "flask run" command
 ENV FLASK_APP=schedule.py:app
 
+EXPOSE 8080
+
 # start the app
 CMD ["flask", "run", "--host", "0.0.0.0", "--port", "8080"]
